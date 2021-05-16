@@ -4,6 +4,10 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,11 +20,20 @@ type ServerInterface interface {
 	// (GET /cards)
 	DeckShow(ctx echo.Context) error
 	// Deals the top card by removing it from the deck
+	// (GET /cards/deal)
+	DeckDealCard2(ctx echo.Context) error
+	// Deals the top card by removing it from the deck
 	// (POST /cards/deal)
 	DeckDealCard(ctx echo.Context) error
+	// Return the card specified in url to the back of the deck
+	// (GET /cards/return)
+	DeckReturnCard2(ctx echo.Context, params DeckReturnCard2Params) error
 	// Return the card specified in body to the back of the deck
 	// (POST /cards/return)
 	DeckReturnCard(ctx echo.Context) error
+	// Permute the deck in an unbiased way
+	// (GET /cards/shuffle)
+	DeckShuffle2(ctx echo.Context) error
 	// Permute the deck in an unbiased way
 	// (POST /cards/shuffle)
 	DeckShuffle(ctx echo.Context) error
@@ -49,6 +62,15 @@ func (w *ServerInterfaceWrapper) DeckShow(ctx echo.Context) error {
 	return err
 }
 
+// DeckDealCard2 converts echo context to params.
+func (w *ServerInterfaceWrapper) DeckDealCard2(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.DeckDealCard2(ctx)
+	return err
+}
+
 // DeckDealCard converts echo context to params.
 func (w *ServerInterfaceWrapper) DeckDealCard(ctx echo.Context) error {
 	var err error
@@ -58,12 +80,39 @@ func (w *ServerInterfaceWrapper) DeckDealCard(ctx echo.Context) error {
 	return err
 }
 
+// DeckReturnCard2 converts echo context to params.
+func (w *ServerInterfaceWrapper) DeckReturnCard2(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeckReturnCard2Params
+	// ------------- Optional query parameter "card" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "card", ctx.QueryParams(), &params.Card)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter card: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.DeckReturnCard2(ctx, params)
+	return err
+}
+
 // DeckReturnCard converts echo context to params.
 func (w *ServerInterfaceWrapper) DeckReturnCard(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.DeckReturnCard(ctx)
+	return err
+}
+
+// DeckShuffle2 converts echo context to params.
+func (w *ServerInterfaceWrapper) DeckShuffle2(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.DeckShuffle2(ctx)
 	return err
 }
 
@@ -106,8 +155,11 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/", wrapper.Index)
 	router.GET(baseURL+"/cards", wrapper.DeckShow)
+	router.GET(baseURL+"/cards/deal", wrapper.DeckDealCard2)
 	router.POST(baseURL+"/cards/deal", wrapper.DeckDealCard)
+	router.GET(baseURL+"/cards/return", wrapper.DeckReturnCard2)
 	router.POST(baseURL+"/cards/return", wrapper.DeckReturnCard)
+	router.GET(baseURL+"/cards/shuffle", wrapper.DeckShuffle2)
 	router.POST(baseURL+"/cards/shuffle", wrapper.DeckShuffle)
 
 }

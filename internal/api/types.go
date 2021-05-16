@@ -14,6 +14,13 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// DeckReturnCard2Params defines parameters for DeckReturnCard2.
+type DeckReturnCard2Params struct {
+
+	// Short-form or long-form encoding of the card to return to the deck
+	Card *string `json:"card,omitempty"`
+}
+
 // DeckReturnCardJSONBody defines parameters for DeckReturnCard.
 type DeckReturnCardJSONBody Card
 
