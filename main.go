@@ -5,12 +5,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/AntonAverchenkov/cards-http-service/internal/api"
+	"github.com/AntonAverchenkov/cards-http-service/internal/game"
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
-
-	"cards-service/internal/api"
-	"cards-service/internal/game"
 )
 
 type CommandLineOptions struct {
@@ -34,8 +33,8 @@ func main() {
 }
 
 func run(cl CommandLineOptions) (errs error) {
-	/* */ log.Printf("run(): cards-http-service begin")
-	defer log.Printf("run(): cards-http-service end")
+	/* */ log.Printf("run(): github.com/cards-http-http-service begin")
+	defer log.Printf("run(): github.com/cards-http-http-service end")
 
 	swagger, err := api.GetSwagger()
 	if err != nil {

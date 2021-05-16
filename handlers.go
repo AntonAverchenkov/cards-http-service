@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/AntonAverchenkov/cards-http-service/internal/api"
+	"github.com/AntonAverchenkov/cards-http-service/internal/game"
 	"github.com/labstack/echo/v4"
-
-	"cards-service/internal/api"
-	"cards-service/internal/game"
 )
 
 //go:embed doc/index.html
