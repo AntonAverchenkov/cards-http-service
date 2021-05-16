@@ -51,11 +51,41 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Card'
+    # GET endpoint is here for easy testing in browser
+    get:
+      summary: Permute the deck in an unbiased way
+      operationId: DeckShuffle2
+      responses:
+        200:
+          description: The state of the deck after shuffling
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
 
   /cards/deal:
     post:
       summary: Deals the top card by removing it from the deck
       operationId: DeckDealCard
+      responses:
+        200:
+          description: The card that was dealt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        409:
+          description: The deck is empty and there are no more cards to deal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    # GET endpoint is here for easy testing in browser
+    get:
+      summary: Deals the top card by removing it from the deck
+      operationId: DeckDealCard2
       responses:
         200:
           description: The card that was dealt
@@ -94,7 +124,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+    # GET endpoint is here for easy testing in browser
+    get:
+      summary: Return the card specified in url to the back of the deck
+      operationId: DeckReturnCard2
+      parameters:
+        - in: query
+          name: card
+          description: Short-form or long-form encoding of the card to return to the deck
+          schema:
+            type: string
+            minLength: 1
+            example: "ah"
+            example: "ace of hearts"
       responses:
         201:
           description: The card was successfully returned to the back of the deck
