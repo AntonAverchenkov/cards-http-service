@@ -11,11 +11,11 @@ ENV SESSIONS_RESTORE_FROM="/tmp/cards-http-service.sessions"
 
 ENV GOPROXY=https://proxy.golang.org,direct
 
-RUN go get -d -v ./...     && \
-    go test -v ./...       && \
-    go install -v ./...    && \
-    go clean -i -modcache  && \
-    go clean -i -cache     && \
+RUN go get -d -v ./...       && \
+    go test -v -short ./...  && \
+    go install -v ./...      && \
+    go clean -i -modcache    && \
+    go clean -i -cache       && \
     go clean -i -testcache
 
 CMD ["cards-http-service"]
