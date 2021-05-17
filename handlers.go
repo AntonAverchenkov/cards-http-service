@@ -131,7 +131,7 @@ func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2P
 func (h *handlers) fetchSessionSetCookie(ctx echo.Context) state.Session {
 
 	createSessionSetCookie := func(ctx echo.Context) state.Session {
-		session := h.sessions.NewSession()
+		session := h.sessions.CreateSession()
 
 		cookie := http.Cookie{
 			Name:     sessionCookie,
@@ -153,7 +153,7 @@ func (h *handlers) fetchSessionSetCookie(ctx echo.Context) state.Session {
 		return createSessionSetCookie(ctx)
 	}
 
-	session := h.sessions.FindOrCreateSession(cookie.Value)
+	session := h.sessions.GetOrCreateSession(cookie.Value)
 
 	return session
 }
