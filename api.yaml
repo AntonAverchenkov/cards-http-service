@@ -15,7 +15,7 @@ paths:
 
   /:
     get:
-      summary: Get documentation that describes this api
+      summary: Get documentation index.html that describes this api
       operationId: Index
       responses:
         200:
@@ -53,7 +53,7 @@ paths:
                   $ref: '#/components/schemas/Card'
     # GET endpoint is here for easy testing in browser
     get:
-      summary: Permute the deck in an unbiased way
+      summary: Permute the deck in an unbiased way (in-browser testing helper)
       operationId: DeckShuffle2
       responses:
         200:
@@ -67,7 +67,7 @@ paths:
 
   /cards/deal:
     post:
-      summary: Deals the top card by removing it from the deck
+      summary: Deal the top card by removing it from the deck
       operationId: DeckDealCard
       responses:
         200:
@@ -84,7 +84,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     # GET endpoint is here for easy testing in browser
     get:
-      summary: Deals the top card by removing it from the deck
+      summary: Deal the top card by removing it from the deck (in-browser testing helper)
       operationId: DeckDealCard2
       responses:
         200:
@@ -102,7 +102,7 @@ paths:
 
   /cards/return:
     post:
-      summary: Return the card specified in body to the back of the deck
+      summary: Return the card specified in the body to the back of the deck
       operationId: DeckReturnCard
       requestBody:
         content:
@@ -126,7 +126,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     # GET endpoint is here for easy testing in browser
     get:
-      summary: Return the card specified in url to the back of the deck
+      summary: Return the card specified in the '?card=' parameter to the back of the deck (in-browser testing helper)
       operationId: DeckReturnCard2
       parameters:
         - in: query
