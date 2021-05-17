@@ -33,8 +33,8 @@ func main() {
 }
 
 func run(cl CommandLineOptions) (errs error) {
-	/* */ log.Printf("run(): github.com/cards-http-http-service begin")
-	defer log.Printf("run(): github.com/cards-http-http-service end")
+	/* */ log.Printf("run(): cards-http-service begin")
+	defer log.Printf("run(): cards-http-service end")
 
 	swagger, err := api.GetSwagger()
 	if err != nil {
