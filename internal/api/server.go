@@ -13,25 +13,25 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Get documentation that describes this api
+	// Get documentation index.html that describes this api
 	// (GET /)
 	Index(ctx echo.Context) error
 	// Get the current state of the deck
 	// (GET /cards)
 	DeckShow(ctx echo.Context) error
-	// Deals the top card by removing it from the deck
+	// Deal the top card by removing it from the deck (in-browser testing helper)
 	// (GET /cards/deal)
 	DeckDealCard2(ctx echo.Context) error
-	// Deals the top card by removing it from the deck
+	// Deal the top card by removing it from the deck
 	// (POST /cards/deal)
 	DeckDealCard(ctx echo.Context) error
-	// Return the card specified in url to the back of the deck
+	// Return the card specified in the '?card=' parameter to the back of the deck (in-browser testing helper)
 	// (GET /cards/return)
 	DeckReturnCard2(ctx echo.Context, params DeckReturnCard2Params) error
-	// Return the card specified in body to the back of the deck
+	// Return the card specified in the body to the back of the deck
 	// (POST /cards/return)
 	DeckReturnCard(ctx echo.Context) error
-	// Permute the deck in an unbiased way
+	// Permute the deck in an unbiased way (in-browser testing helper)
 	// (GET /cards/shuffle)
 	DeckShuffle2(ctx echo.Context) error
 	// Permute the deck in an unbiased way
