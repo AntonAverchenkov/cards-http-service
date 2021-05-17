@@ -21,7 +21,7 @@ const (
 )
 
 type handlers struct {
-	lock     sync.Mutex
+	lock     *sync.Mutex
 	sessions *state.SessionManager
 }
 
