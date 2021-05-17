@@ -8,22 +8,21 @@ A simple demo of a stateful REST API service for a deck of cards.
 
 A few of the `POST` endpoints are duplicated as `GET` endpoints to simplify
 testing in a browser. For example, it is possible to return a card by hitting
-`GET /cards/return?card=qd` in a browser, rather than using `curl` (or similar)
-with `JSON` payload.
+`GET /cards/return?card=qd` in a browser, rather than using `curl` (or similar).
 
 ## Session management
 
-The service maintains a unique session for each browser that connects to it.
-The sessions are maintained by setting the session cookie. Each session
-corresponds to a single deck view. This is currently not going to work if
-the cookies are not enabled.
+The service maintains a unique session for each browser client that connects to
+it. The sessions are maintained by setting the `"session"` cookie. Each session
+corresponds to a unique deck of cards view for the client. This is currently not
+going to work if the cookies are not enabled.
 
 ### Session persistence
 
 The sessions can be optionally persisted through server restarts:
 
 ```sh
-$ ./cards-http-service --sessions-persist-to path/to/file --sessions-restore-from path/to/file
+./cards-http-service --sessions-persist-to path/to/file --sessions-restore-from path/to/file
 ```
 
 If specified, the service will attempt to parse the given file on startup for
@@ -31,10 +30,18 @@ any persisted sessions. On shutdown, the server will write sessions to the
 given file. This mechanism is not foolproof (it will not work if the service
 hard-crashes). However, it should take care of most other cases.
 
-## Installation
+## Install & run
 
 ```sh
 go install github.com/AntonAverchenkov/cards-http-service
+$GOPATH/bin/cards-http-service
+```
+
+Alternatively, the service can be run from docker:
+
+```sh
+docker build -t cards-http-service .
+docker run -it -p 127.0.0.1:8080:8080/tcp cards-http-service
 ```
 
 ## Testing
@@ -42,18 +49,20 @@ go install github.com/AntonAverchenkov/cards-http-service
 ### Unit tests
 
 ```sh
-go test -v --short ./...
+go test -v ./...
+```
+
+There are currently no environment-specific tests or tests that simulate client
+requests (on my to-do list), however, it is possible to run the existing unit
+tests from docker as well:
+
+```sh
+docker run -it -p 127.0.0.1:8080:8080/tcp cards-http-service go test -v ./...
 ```
 
 ### Testing in browser
 
-Start up the service as follows:
-
-```sh
-$ ./cards-http-service --address :8080
-```
-
-Try the following in multiple browsers:
+Try the following endpoints in one or more browsers:
 
 - http://localhost:8080/
 - http://localhost:8080/cards
@@ -61,10 +70,10 @@ Try the following in multiple browsers:
 - http://localhost:8080/cards/deal
 - http://localhost:8080/cards/return?card=ac
 
-#### Short-form card encoding for /cards/return
+#### Short-form card encoding for /cards/return endpoint
 
-`/cards/return?card={card}` accepts both the long-form and the short-form
-representations of a card. For example, to return `jack of spades`
+The `/cards/return?card={card}` endpoing accepts both the long-form and the
+short-form representations of a card. For example, to return `jack of spades`
 to the deck either of the following will work:
 
 - `/cards/return?card=jack%20of%20spades`
