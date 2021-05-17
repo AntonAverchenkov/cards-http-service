@@ -76,7 +76,7 @@ func (h *handlers) DeckDealCard2(ctx echo.Context) error {
 	return h.DeckDealCard(ctx)
 }
 
-// (POST /cards/return) Return the card specified in body to the back of the deck
+// (POST /cards/return) : return the card specified in body to the back of the deck
 func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 	// We expect an api.Card object in the request body
 	var c api.Card
@@ -127,7 +127,7 @@ func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2P
 	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// fetchSessionSetCookie will fetch or create a new session, setting the session cookie if needed
+// will fetch or create a new session, setting the session cookie if needed
 func (h *handlers) fetchSessionSetCookie(ctx echo.Context) state.Session {
 
 	createSessionSetCookie := func(ctx echo.Context) state.Session {
