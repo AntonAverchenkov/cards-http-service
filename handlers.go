@@ -25,7 +25,7 @@ type handlers struct {
 	sessions *state.SessionManager
 }
 
-// (GET /) : get docuentation index.html that describes this api
+// (GET /) : get documentation index.html that describes this api
 func (h *handlers) Index(ctx echo.Context) error {
 	return ctx.HTML(http.StatusOK, documentation)
 }
@@ -37,7 +37,7 @@ func (h *handlers) DeckShow(ctx echo.Context) error {
 
 	session := h.fetchSessionSetCookie(ctx)
 
-	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
+	return JSON(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
 // (POST /cards/shuffle) : permute the deck in an unbiased way
@@ -48,7 +48,7 @@ func (h *handlers) DeckShuffle(ctx echo.Context) error {
 	session := h.fetchSessionSetCookie(ctx)
 	session.Deck.Shuffle()
 
-	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
+	return JSON(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
 // (GET /cards/shuffle) : permute the deck in an unbiased way (in-browser testing helper)
@@ -65,10 +65,10 @@ func (h *handlers) DeckDealCard(ctx echo.Context) error {
 
 	card, err := session.Deck.DealCard()
 	if err != nil {
-		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
+		return JSON(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return json(ctx, http.StatusOK, fromGameCard(card))
+	return JSON(ctx, http.StatusOK, fromGameCard(card))
 }
 
 // (GET /cards/deal) : deal the top card by removing it from the deck (in-browser testing helper)
@@ -82,12 +82,12 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 	var c api.Card
 	err := ctx.Bind(&c)
 	if err != nil {
-		return json(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
+		return JSON(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
 	}
 
 	card, err := toGameCard(c)
 	if err != nil {
-		return json(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
+		return JSON(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
 	}
 
 	h.lock.Lock()
@@ -97,21 +97,21 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 
 	err = session.Deck.ReturnCard(card)
 	if err != nil {
-		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
+		return JSON(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
+	return JSON(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
 // (GET /cards/return?card={card}) : return the card specified in the '?card=' parameter to the back of the deck (in-browser testing helper)
 func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2Params) error {
 	if params.Card == nil {
-		return json(ctx, http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"})
+		return JSON(ctx, http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"})
 	}
 
 	card, err := game.ParseCard(*params.Card)
 	if err != nil {
-		return json(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
+		return JSON(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
 	}
 
 	h.lock.Lock()
@@ -121,10 +121,10 @@ func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2P
 
 	err = session.Deck.ReturnCard(card)
 	if err != nil {
-		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
+		return JSON(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
+	return JSON(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
 // will fetch or create a new session, setting the session cookie if needed
@@ -158,8 +158,8 @@ func (h *handlers) fetchSessionSetCookie(ctx echo.Context) state.Session {
 	return session
 }
 
-// json is a formatting helper
-func json(ctx echo.Context, code int, i interface{}) error {
+// JSON is a formatting helper
+func JSON(ctx echo.Context, code int, i interface{}) error {
 	return ctx.JSONPretty(code, i, "  ")
 }
 
