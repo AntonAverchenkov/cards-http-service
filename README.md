@@ -68,9 +68,9 @@ The `test-client` will send requests to the service running in `cards-http-servi
 and assert that the responses are as expected within an internal network.
 
 ```sh
-docker-compose -f integration_test.docker-compose.yaml up -d
-docker-compose -f integration_test.docker-compose.yaml exec test-client go test
-docker-compose -f integration_test.docker-compose.yaml down
+docker-compose -f integration_test.compose.yaml up -d
+docker-compose -f integration_test.compose.yaml exec test-client go test
+docker-compose -f integration_test.compose.yaml down
 ```
 
 ### Testing in browser
