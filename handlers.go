@@ -12,7 +12,7 @@ import (
 )
 
 //go:embed doc/index.html
-var docIndexHtml string
+var documentation string
 
 type handlers struct {
 	lock sync.Mutex
@@ -21,7 +21,7 @@ type handlers struct {
 
 // (GET /) index.html that describes this api
 func (h *handlers) Index(ctx echo.Context) error {
-	return ctx.HTML(http.StatusOK, docIndexHtml)
+	return ctx.HTML(http.StatusOK, documentation)
 }
 
 // (GET /cards) Get the current state of the deck
@@ -29,7 +29,7 @@ func (h *handlers) DeckShow(ctx echo.Context) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
-	return ctx.JSONPretty(http.StatusOK, fromGameCards(h.deck.Cards), "  ")
+	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
 }
 
 // (POST /cards/shuffle) Permute the deck in an unbiased way
@@ -39,7 +39,7 @@ func (h *handlers) DeckShuffle(ctx echo.Context) error {
 
 	h.deck.Shuffle()
 
-	return ctx.JSONPretty(http.StatusOK, fromGameCards(h.deck.Cards), "  ")
+	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
 }
 
 // (GET /cards/shuffle) Permute the deck in an unbiased way
@@ -54,10 +54,10 @@ func (h *handlers) DeckDealCard(ctx echo.Context) error {
 
 	card, err := h.deck.DealCard()
 	if err != nil {
-		return ctx.JSONPretty(http.StatusConflict, api.Error{Message: err.Error()}, "  ")
+		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return ctx.JSONPretty(http.StatusOK, fromGameCard(card), "  ")
+	return json(ctx, http.StatusOK, fromGameCard(card))
 }
 
 // (GET /cards/deal) Deals the top card by removing it from the deck
@@ -71,12 +71,12 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 	var c api.Card
 	err := ctx.Bind(&c)
 	if err != nil {
-		return ctx.JSONPretty(http.StatusBadRequest, api.Error{Message: err.Error()}, "  ")
+		return json(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
 	}
 
 	card, err := toGameCard(c)
 	if err != nil {
-		return ctx.JSONPretty(http.StatusBadRequest, api.Error{Message: err.Error()}, "  ")
+		return json(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
 	}
 
 	h.lock.Lock()
@@ -84,21 +84,21 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 
 	err = h.deck.ReturnCard(card)
 	if err != nil {
-		return ctx.JSONPretty(http.StatusConflict, api.Error{Message: err.Error()}, "  ")
+		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return ctx.JSONPretty(http.StatusOK, fromGameCards(h.deck.Cards), "  ")
+	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
 }
 
 // (GET /cards/return?card={card}) Return the card specified in url parameter to the back of the deck
 func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2Params) error {
 	if params.Card == nil {
-		return ctx.JSONPretty(http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"}, "  ")
+		return json(ctx, http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"})
 	}
 
 	card, err := game.ParseCard(*params.Card)
 	if err != nil {
-		return ctx.JSONPretty(http.StatusBadRequest, api.Error{Message: err.Error()}, "  ")
+		return json(ctx, http.StatusBadRequest, api.Error{Message: err.Error()})
 	}
 
 	h.lock.Lock()
@@ -106,10 +106,15 @@ func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2P
 
 	err = h.deck.ReturnCard(card)
 	if err != nil {
-		return ctx.JSONPretty(http.StatusConflict, api.Error{Message: err.Error()}, "  ")
+		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return ctx.JSONPretty(http.StatusOK, fromGameCards(h.deck.Cards), "  ")
+	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
+}
+
+// json is a formatting helper
+func json(ctx echo.Context, code int, i interface{}) error {
+	return ctx.JSONPretty(code, i, "  ")
 }
 
 ///
