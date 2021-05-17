@@ -3,9 +3,9 @@ package main
 //
 // The tests below should be run inside of docker compose environment:
 //
-// docker-compose -f integration_test.docker-compose.yaml up -d
-// docker-compose -f integration_test.docker-compose.yaml exec test-client go test
-// docker-compose -f integration_test.docker-compose.yaml down
+// docker-compose -f integration_test.compose.yaml up -d
+// docker-compose -f integration_test.compose.yaml exec test-client go test
+// docker-compose -f integration_test.compose.yaml down
 //
 
 import (
