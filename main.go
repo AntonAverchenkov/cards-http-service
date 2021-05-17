@@ -5,12 +5,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/AntonAverchenkov/cards-http-service/internal/api"
+	"github.com/AntonAverchenkov/cards-http-service/internal/game"
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
-
-	"cards-service/internal/api"
-	"cards-service/internal/game"
 )
 
 type CommandLineOptions struct {
