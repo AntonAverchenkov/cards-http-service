@@ -58,20 +58,24 @@ docker run -it -p 127.0.0.1:8080:8080/tcp cards-http-service
 ### Unit tests
 
 ```sh
-go test -v ./...
+go test -short -v ./...
 ```
 
-There are currently no environment-specific tests or tests that simulate client
-requests (on my to-do list), however, it is possible to run the existing unit
-tests from docker as well:
+### Integration tests
+
+The following will run integration tests inside of the `test-client` container.
+The `test-client` will send requests to the service running in `cards-http-service`
+and assert that the responses are as expected within an internal network.
 
 ```sh
-docker run -it -p 127.0.0.1:8080:8080/tcp cards-http-service go test -v ./...
+docker-compose -f integration_test.docker-compose.yaml up -d
+docker-compose -f integration_test.docker-compose.yaml exec test-client go test
+docker-compose -f integration_test.docker-compose.yaml down
 ```
 
 ### Testing in browser
 
-Try the following endpoints in one or more browsers:
+Try the following endpoints in one or more browser clients:
 
 - http://localhost:8080/
 - http://localhost:8080/cards
@@ -114,4 +118,3 @@ representations:
 | jack  | `j`   |
 | queen | `q`   |
 | king  | `k`   |
-
