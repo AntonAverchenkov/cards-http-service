@@ -51,7 +51,7 @@ func (h *handlers) DeckShuffle(ctx echo.Context) error {
 	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// (GET /cards/shuffle) : permute the deck in an unbiased way (testing helper)
+// (GET /cards/shuffle) : permute the deck in an unbiased way (in-browser testing helper)
 func (h *handlers) DeckShuffle2(ctx echo.Context) error {
 	return h.DeckShuffle(ctx)
 }
@@ -71,7 +71,7 @@ func (h *handlers) DeckDealCard(ctx echo.Context) error {
 	return json(ctx, http.StatusOK, fromGameCard(card))
 }
 
-// (GET /cards/deal) : deal the top card by removing it from the deck (testing helper)
+// (GET /cards/deal) : deal the top card by removing it from the deck (in-browser testing helper)
 func (h *handlers) DeckDealCard2(ctx echo.Context) error {
 	return h.DeckDealCard(ctx)
 }
@@ -103,7 +103,7 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// (GET /cards/return?card={card}) : return the card specified in 'card' parameter to the back of the deck (testing helper)
+// (GET /cards/return?card={card}) : return the card specified in the '?card=' parameter to the back of the deck (in-browser testing helper)
 func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2Params) error {
 	if params.Card == nil {
 		return json(ctx, http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"})
