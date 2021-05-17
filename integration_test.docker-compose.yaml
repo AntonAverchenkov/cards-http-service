@@ -1,0 +1,44 @@
+version: "3.2"
+
+services:
+  test-client:
+    image: golang:1.16
+    command: ["bash", "-c", "tail -f /dev/null & trap 'kill %1' SIGTERM ; wait"]
+    volumes:
+    - type:      bind
+      source:    $GOPATH\pkg\mod
+      target:    /go/pkg/mod
+    - type:      bind
+      source:    .
+      target:    /go/src/cards-http-service
+    working_dir: /go/src/cards-http-service/.
+    depends_on:
+      cards-http-service:
+        condition: service_healthy
+    environment:
+      ENDPOINT_CARDS:          http://cards-http-service/cards
+      ENDPOINT_CARDS_SHUFFLE:  http://cards-http-service/cards/shuffle
+      ENDPOINT_CARDS_DEAL:     http://cards-http-service/cards/deal
+      ENDPOINT_CARDS_RETURN:   http://cards-http-service/cards/return
+
+  cards-http-service:
+    image: golang:1.16
+    command: ["go", "run", "."]
+    volumes:
+    - type:      bind
+      source:    $GOPATH\pkg\mod
+      target:    /go/pkg/mod
+    - type:      bind
+      source:    .
+      target:    /go/src/cards-http-service
+    working_dir: /go/src/cards-http-service/.
+    environment:
+      ADDRESS:               :80
+      SESSIONS_PERSIST_TO:   /tmp/cards-http-service.sessions
+      SESSIONS_RESTORE_FROM: /tmp/cards-http-service.sessions
+    healthcheck:
+      test: curl --fail -s http://localhost || exit 1
+
+networks:
+  default:
+    internal: true
