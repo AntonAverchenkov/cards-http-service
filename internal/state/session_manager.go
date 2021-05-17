@@ -1,27 +1,29 @@
 package state
 
-import "github.com/AntonAverchenkov/cards-http-service/internal/game"
+import (
+	"crypto/rand"
+	"encoding/base64"
+	"io"
+
+	"github.com/AntonAverchenkov/cards-http-service/internal/game"
+)
 
 // SessionManager maintains a collection of currently active sessions
 type SessionManager struct {
-	latest   int
-	sessions map[int]Session
+	sessions map[string]Session
 }
 
-func NewSessionManaer() *SessionManager {
+func NewSessionManager() *SessionManager {
 	return &SessionManager{
-		latest:   0,
-		sessions: make(map[int]Session, 0),
+		sessions: make(map[string]Session, 0),
 	}
 }
 
 func (s *SessionManager) NewSession() Session {
-	s.latest++
-
 	var (
-		id      = s.latest
+		id      = generateUniqueSessionId()
 		session = Session{
-			ID:   id,
+			Id:   id,
 			Deck: game.NewDeck(),
 		}
 	)
@@ -30,8 +32,23 @@ func (s *SessionManager) NewSession() Session {
 	return session
 }
 
-func (s *SessionManager) Get(id int) (Session, bool) {
+// FindOrCreateSession returns a session for the given id if it exists, returns a new session otherwise
+func (s *SessionManager) FindOrCreateSession(id string) Session {
 	session, exists := s.sessions[id]
+	if exists {
+		return session
+	}
 
-	return session, exists
+	return s.NewSession()
+}
+
+func generateUniqueSessionId() string {
+	// this might be an overkill
+	b := make([]byte, 32)
+
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		panic(err)
+	}
+
+	return base64.URLEncoding.EncodeToString(b)
 }

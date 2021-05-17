@@ -8,15 +8,21 @@ import (
 
 	"github.com/AntonAverchenkov/cards-http-service/internal/api"
 	"github.com/AntonAverchenkov/cards-http-service/internal/game"
+	"github.com/AntonAverchenkov/cards-http-service/internal/state"
 	"github.com/labstack/echo/v4"
 )
 
 //go:embed doc/index.html
 var documentation string
 
+const (
+	sessionCookie   = "session"
+	sessionLifetime = 3600
+)
+
 type handlers struct {
-	lock sync.Mutex
-	deck *game.Deck
+	lock     sync.Mutex
+	sessions *state.SessionManager
 }
 
 // (GET /) index.html that describes this api
@@ -29,30 +35,35 @@ func (h *handlers) DeckShow(ctx echo.Context) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
-	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
+	session := h.fetchSessionSetCookie(ctx)
+
+	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// (POST /cards/shuffle) Permute the deck in an unbiased way
+// (POST /cards/shuffle) : permute the deck in an unbiased way
 func (h *handlers) DeckShuffle(ctx echo.Context) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
-	h.deck.Shuffle()
+	session := h.fetchSessionSetCookie(ctx)
+	session.Deck.Shuffle()
 
-	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
+	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// (GET /cards/shuffle) Permute the deck in an unbiased way
+// (GET /cards/shuffle) : permute the deck in an unbiased way (testing helper)
 func (h *handlers) DeckShuffle2(ctx echo.Context) error {
 	return h.DeckShuffle(ctx)
 }
 
-// (POST /cards/deal) Deals the top card by removing it from the deck
+// (POST /cards/deal) : deal the top card by removing it from the deck
 func (h *handlers) DeckDealCard(ctx echo.Context) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
-	card, err := h.deck.DealCard()
+	session := h.fetchSessionSetCookie(ctx)
+
+	card, err := session.Deck.DealCard()
 	if err != nil {
 		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
@@ -60,7 +71,7 @@ func (h *handlers) DeckDealCard(ctx echo.Context) error {
 	return json(ctx, http.StatusOK, fromGameCard(card))
 }
 
-// (GET /cards/deal) Deals the top card by removing it from the deck
+// (GET /cards/deal) : deal the top card by removing it from the deck (testing helper)
 func (h *handlers) DeckDealCard2(ctx echo.Context) error {
 	return h.DeckDealCard(ctx)
 }
@@ -82,15 +93,17 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
-	err = h.deck.ReturnCard(card)
+	session := h.fetchSessionSetCookie(ctx)
+
+	err = session.Deck.ReturnCard(card)
 	if err != nil {
 		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
+	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// (GET /cards/return?card={card}) Return the card specified in url parameter to the back of the deck
+// (GET /cards/return?card={card}) : return the card specified in url parameter to the back of the deck (testing helper)
 func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2Params) error {
 	if params.Card == nil {
 		return json(ctx, http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"})
@@ -104,12 +117,45 @@ func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2P
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
-	err = h.deck.ReturnCard(card)
+	session := h.fetchSessionSetCookie(ctx)
+
+	err = session.Deck.ReturnCard(card)
 	if err != nil {
 		return json(ctx, http.StatusConflict, api.Error{Message: err.Error()})
 	}
 
-	return json(ctx, http.StatusOK, fromGameCards(h.deck.Cards))
+	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
+}
+
+// fetchSessionSetCookie will fetch or create a new session, setting the session cookie if needed
+func (h *handlers) fetchSessionSetCookie(ctx echo.Context) state.Session {
+
+	createSessionSetCookie := func(ctx echo.Context) state.Session {
+		session := h.sessions.NewSession()
+
+		cookie := http.Cookie{
+			Name:     sessionCookie,
+			Value:    session.Id,
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   sessionLifetime,
+		}
+
+		ctx.SetCookie(&cookie)
+
+		return session
+	}
+
+	// check if the cookie already exists
+	cookie, err := ctx.Cookie(sessionCookie)
+
+	if err != nil || cookie.Value == "" {
+		return createSessionSetCookie(ctx)
+	}
+
+	session := h.sessions.FindOrCreateSession(cookie.Value)
+
+	return session
 }
 
 // json is a formatting helper

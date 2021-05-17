@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/AntonAverchenkov/cards-http-service/internal/api"
-	"github.com/AntonAverchenkov/cards-http-service/internal/game"
+	"github.com/AntonAverchenkov/cards-http-service/internal/state"
 	"github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
@@ -42,7 +42,7 @@ func run(cl CommandLineOptions) (errs error) {
 	}
 
 	handlers := handlers{
-		deck: game.NewDeck(),
+		sessions: state.NewSessionManager(),
 	}
 
 	server := echo.New()
