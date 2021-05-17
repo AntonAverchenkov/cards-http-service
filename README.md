@@ -32,7 +32,7 @@ go install github.com/AntonAverchenkov/cards-http-service
 go test -v --short ./...
 ```
 
-### Testing in-browser
+### Testing in browser
 
 Start up the service as follows:
 
@@ -40,7 +40,7 @@ Start up the service as follows:
 $ ./cards-http-service --address :8080
 ```
 
-Try the following:
+Try the following in multiple browsers:
 
 - http://localhost:8080/
 - http://localhost:8080/cards
