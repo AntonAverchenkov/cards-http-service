@@ -42,14 +42,6 @@ func run(cl CommandLineOptions) (errs error) {
 	/* */ log.Println("run(): cards-http-service begin")
 	defer log.Println("run(): cards-http-service end")
 
-	signalled := make(chan os.Signal, 1)
-	signal.Notify(
-		signalled,
-		syscall.SIGHUP,  // sent to the process when its controlling terminal is closed
-		syscall.SIGINT,  // sent to the process by its controlling terminal when a user wishes to interrupt the process
-		syscall.SIGTERM, // sent to the process to request its termination
-	)
-
 	swagger, err := api.GetSwagger()
 	if err != nil {
 		return fmt.Errorf("could not load swagger spec: %w", err)
@@ -59,6 +51,8 @@ func run(cl CommandLineOptions) (errs error) {
 		lock     sync.Mutex
 		sessions *state.SessionManager
 	)
+
+	// restore the sessions
 	if cl.SessionsRestoreFrom != "" {
 		log.Printf("run(): restoring sessions from %q\n", cl.SessionsRestoreFrom)
 
@@ -89,14 +83,23 @@ func run(cl CommandLineOptions) (errs error) {
 		close(done)
 	}()
 
-	// block until an interrupt signal or server exit
+	// block until an interrupt signal or a server shutdown
+	signalled := make(chan os.Signal, 1)
+	signal.Notify(
+		signalled,
+		syscall.SIGHUP,  // sent to the process when its controlling terminal is closed
+		syscall.SIGINT,  // sent to the process by its controlling terminal when a user wishes to interrupt the process
+		syscall.SIGTERM, // sent to the process to request its termination
+	)
+
 	select {
 	case <-signalled:
-		log.Println("run(): signalled, exiting")
+		log.Println("run(): received a termination signal; exiting")
 	case <-done:
-		log.Println("run(): the server has stopped")
+		log.Println("run(): server has stopped; exiting")
 	}
 
+	// persist the sessions
 	if cl.SessionsPersistTo != "" {
 		lock.Lock()
 		defer lock.Unlock()
