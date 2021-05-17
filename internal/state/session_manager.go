@@ -19,27 +19,29 @@ func NewSessionManager() *SessionManager {
 	}
 }
 
-func (s *SessionManager) NewSession() Session {
-	var (
-		id      = generateUniqueSessionId()
-		session = Session{
-			Id:   id,
-			Deck: game.NewDeck(),
-		}
-	)
+func (s *SessionManager) CreateSession() Session {
+	return s.CreateSessionWith(generateUniqueSessionId())
+}
+
+func (s *SessionManager) CreateSessionWith(id string) Session {
+	session := Session{
+		Id:   id,
+		Deck: game.NewDeck(),
+	}
+
 	s.sessions[id] = session
 
 	return session
 }
 
-// FindOrCreateSession returns a session for the given id if it exists, returns a new session otherwise
-func (s *SessionManager) FindOrCreateSession(id string) Session {
+// GetOrCreateSession returns a session for the given id if it exists, creates it otherwise
+func (s *SessionManager) GetOrCreateSession(id string) Session {
 	session, exists := s.sessions[id]
 	if exists {
 		return session
 	}
 
-	return s.NewSession()
+	return s.CreateSessionWith(id)
 }
 
 func generateUniqueSessionId() string {
