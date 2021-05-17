@@ -18,6 +18,19 @@ The sessions are maintained by setting the session cookie. Each session
 corresponds to a single deck view. This is currently not going to work if
 the cookies are not enabled.
 
+### Session persistence
+
+The sessions can be optionally persisted through server restarts:
+
+```sh
+$ ./cards-http-service --sessions-persist-to path/to/file --sessions-restore-from path/to/file
+```
+
+If specified, the service will attempt to parse the given file on startup for
+any persisted sessions. On shutdown, the server will write sessions to the
+given file. This mechanism is not fullproof (it will not work if the service
+hard-crashes). However, this should take care of most other cases.
+
 ## Installation
 
 ```sh

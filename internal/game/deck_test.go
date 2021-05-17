@@ -89,3 +89,36 @@ func TestDeckReturn(t *testing.T) {
 	require.NoError(t, err)
 	require.Error(t, deck.ReturnCard(Card{Value: ValueAce, Suit: SuitSpades}))
 }
+
+func TestSerializeDeserialize(t *testing.T) {
+	_, err := DeckDeserialize("ahq")
+	require.Error(t, err)
+
+	_, err = DeckDeserialize("ahqs3")
+	require.Error(t, err)
+
+	_, err = DeckDeserialize("ahqs3m")
+	require.Error(t, err)
+
+	expected := []Card{{
+		Value: ValueAce,
+		Suit:  SuitHearts,
+	}, {
+		Value: ValueQueen,
+		Suit:  SuitSpades,
+	}, {
+		Value: ValueThree,
+		Suit:  SuitDiamonds,
+	}, {
+		Value: ValueJack,
+		Suit:  SuitSpades,
+	}, {
+		Value: ValueTen,
+		Suit:  SuitClubs,
+	}}
+
+	deck, err := DeckDeserialize("ahqs3djstc")
+	require.NoError(t, err)
+	require.Equal(t, expected, deck.Cards)
+	require.Equal(t, "ahqs3djstc", deck.Serialize())
+}

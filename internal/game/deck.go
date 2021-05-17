@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -34,6 +35,40 @@ func NewDeck() *Deck {
 		Cards: cards,
 		rng:   rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
+}
+
+func (d *Deck) Serialize() string {
+	var b strings.Builder
+
+	for _, card := range d.Cards {
+		b.WriteString(card.ShortString())
+	}
+
+	return b.String()
+}
+
+func DeckDeserialize(str string) (*Deck, error) {
+	var cards []Card
+
+	if len(str)%2 != 0 {
+		return nil, fmt.Errorf("the string length (%d) is not even", len(str))
+	}
+
+	for i := 0; i < len(str); i += 2 {
+
+		// this should not be out of range since the length is even
+		c, err := ParseCard(str[i : i+2])
+		if err != nil {
+			return nil, err
+		}
+
+		cards = append(cards, c)
+	}
+
+	return &Deck{
+		Cards: cards,
+		rng:   rand.New(rand.NewSource(time.Now().UnixNano())),
+	}, nil
 }
 
 // DealCard removes the top card from the deck (subtracts it from the slice's front) and returns it
