@@ -25,12 +25,12 @@ type handlers struct {
 	sessions *state.SessionManager
 }
 
-// (GET /) index.html that describes this api
+// (GET /) : get docuentation index.html that describes this api
 func (h *handlers) Index(ctx echo.Context) error {
 	return ctx.HTML(http.StatusOK, documentation)
 }
 
-// (GET /cards) Get the current state of the deck
+// (GET /cards) : get the current state of the deck
 func (h *handlers) DeckShow(ctx echo.Context) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
@@ -103,7 +103,7 @@ func (h *handlers) DeckReturnCard(ctx echo.Context) error {
 	return json(ctx, http.StatusOK, fromGameCards(session.Deck.Cards))
 }
 
-// (GET /cards/return?card={card}) : return the card specified in url parameter to the back of the deck (testing helper)
+// (GET /cards/return?card={card}) : return the card specified in 'card' parameter to the back of the deck (testing helper)
 func (h *handlers) DeckReturnCard2(ctx echo.Context, params api.DeckReturnCard2Params) error {
 	if params.Card == nil {
 		return json(ctx, http.StatusBadRequest, api.Error{Message: "the required url parameter 'card' is missing"})
