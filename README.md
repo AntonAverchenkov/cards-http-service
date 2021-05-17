@@ -28,8 +28,8 @@ $ ./cards-http-service --sessions-persist-to path/to/file --sessions-restore-fro
 
 If specified, the service will attempt to parse the given file on startup for
 any persisted sessions. On shutdown, the server will write sessions to the
-given file. This mechanism is not fullproof (it will not work if the service
-hard-crashes). However, this should take care of most other cases.
+given file. This mechanism is not foolproof (it will not work if the service
+hard-crashes). However, it should take care of most other cases.
 
 ## Installation
 
