@@ -39,8 +39,8 @@ func main() {
 }
 
 func run(cl CommandLineOptions) (errs error) {
-	/* */ log.Printf("run(): cards-http-service begin")
-	defer log.Printf("run(): cards-http-service end")
+	/* */ log.Println("run(): cards-http-service begin")
+	defer log.Println("run(): cards-http-service end")
 
 	signalled := make(chan os.Signal, 1)
 	signal.Notify(
@@ -60,11 +60,12 @@ func run(cl CommandLineOptions) (errs error) {
 		sessions *state.SessionManager
 	)
 	if cl.SessionsRestoreFrom != "" {
-		log.Printf("run(): restoring sessions from %q", cl.SessionsRestoreFrom)
+		log.Printf("run(): restoring sessions from %q\n", cl.SessionsRestoreFrom)
 
 		sessions, err = state.Restore(cl.SessionsRestoreFrom)
 		if err != nil {
-			return fmt.Errorf("could not restore: %w", err)
+			log.Printf("run(): could not restore sessions; starting new ones: %v\n", err)
+			sessions = state.NewSessionManager()
 		}
 	} else {
 		sessions = state.NewSessionManager()
@@ -88,19 +89,19 @@ func run(cl CommandLineOptions) (errs error) {
 		close(done)
 	}()
 
-	// block until an interrupt signal or the server exit
+	// block until an interrupt signal or server exit
 	select {
 	case <-signalled:
-		log.Printf("run(): signalled, exiting")
+		log.Println("run(): signalled, exiting")
 	case <-done:
-		log.Printf("run(): the server has stopped")
+		log.Println("run(): the server has stopped")
 	}
 
 	if cl.SessionsPersistTo != "" {
 		lock.Lock()
 		defer lock.Unlock()
 
-		log.Printf("run(): persisting sessions to %q", cl.SessionsPersistTo)
+		log.Printf("run(): persisting sessions to %q\n", cl.SessionsPersistTo)
 
 		if err := sessions.Persist(cl.SessionsPersistTo); err != nil {
 			errs = multierror.Append(errs, fmt.Errorf("could not persist: %w", err))
