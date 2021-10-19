@@ -2,8 +2,8 @@ version: "3.2"
 
 services:
   test-client:
-    image: golang:1.16
-    command: ["bash", "-c", "tail -f /dev/null & trap 'kill %1' SIGTERM ; wait"]
+    image:       golang:1.16
+    command:     [ "bash", "-c", "tail -f /dev/null & trap 'kill %1' SIGTERM ; wait" ]
     volumes:
     - type:      bind
       source:    $GOPATH\pkg\mod
