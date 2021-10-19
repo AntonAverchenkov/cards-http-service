@@ -22,8 +22,8 @@ services:
       ENDPOINT_CARDS_RETURN:   http://cards-http-service/cards/return
 
   cards-http-service:
-    image: golang:1.16
-    command: ["go", "run", "."]
+    image:       golang:1.16
+    command:     ["go", "run", "."]
     volumes:
     - type:      bind
       source:    $GOPATH\pkg\mod
