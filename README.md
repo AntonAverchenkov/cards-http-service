@@ -17,6 +17,7 @@ it. The sessions are maintained by setting the `"session"` cookie. Each session
 corresponds to a unique deck of cards view for the client. This is currently not
 going to work if the cookies are not enabled.
 
+
 ### Session persistence
 
 The sessions can be optionally persisted through server restarts:
