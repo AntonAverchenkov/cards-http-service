@@ -25,7 +25,6 @@ The sessions can be optionally persisted through server restarts:
 ./cards-http-service --sessions-persist-to path/to/file --sessions-restore-from path/to/file
 ```
 
-
 The service will attempt to parse the `--sessions-restore-from` file on startup
 and restore sessions from it. On shutdown, the service will write sessions to
 the `--sessions-persist-to` file. This mechanism is not foolproof (it will not
