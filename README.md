@@ -2,6 +2,7 @@
 
 A simple demo of a stateful REST API service for a deck of cards.
 
+
 ## API
 
 ![api](/doc/api.png)
